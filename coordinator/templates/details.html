@@ -1,0 +1,13 @@
+{% extends "master.html" %}
+
+{% block title %}
+  Details about {{ myuser.firstname }} {{ myuser.lastname }}
+{% endblock %}
+
+
+{% block content %}
+  <h1>{{ myuser.firstname }} {{ myuser.lastname }}</h1>
+  
+  <p>Back to <a href="/coordinator">Users</a></p>
+  
+{% endblock %}

@@ -1,0 +1,28 @@
+{% extends "master.html" %}
+
+{% block title %}
+  Coordinator
+{% endblock %}
+
+
+{% block content %}
+  <form action='.' method="POST">
+    {% csrf_token %}
+    <label>Scan Name:</label>
+    <input type="text" name="scan_name" placeholder="Scan Name"/>
+
+    <div style="margin-top:10px;">
+    <label>Description:</label>
+    <div style="margin-top: 10px; margin-left: 80px;">
+    <textarea name="description" placeholder="Description"></textarea>
+    </div>
+    </div>
+    <div style="margin-top:10px;">
+    <label>Target:</label>
+    <input type="text" name="target" placeholder="Target Range"/>
+    </div>
+    <div style="margin-top:30px; margin-left: 170px;">
+    <button type="submit">Start Scan</button>
+    </div>
+  </form>
+{% endblock %}
