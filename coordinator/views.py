@@ -2,8 +2,12 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from django.template import loader
 from .models import User
+
+# import the Scan object model that is created in the models file
 from .models import Scan
 
+# commented out code was just for testing/playing aroun puposes
+"""
 def users(request):
     myusers = User.objects.all().values()
     template = loader.get_template('all_users.html')
@@ -24,6 +28,11 @@ def main(request):
     template = loader.get_template('main.html')
     return HttpResponse(template.render())
 
+
+"""
+# the testing function is used for trying out new functions
+# we will change this to a new name once we have it working how we want
+# right now it creates a Scan object and stores that in a database
 def testing(request):
     template = loader.get_template('template.html')
    # print(request.POST)
