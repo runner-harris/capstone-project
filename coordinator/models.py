@@ -10,6 +10,8 @@ class Scan(models.Model):
     scanName = models.CharField(max_length=255, null=True)
     description = models.CharField(max_length=255, null=True)
     target = models.CharField(max_length=255, null=True)
+    schedule = models.CharField(max_length=255, null=True)
+    date = models.DateField(null=True)
     # the below function makes the scan object in the admin page more user friendly
     def __str__(self):
         return f"{self.scanName}"

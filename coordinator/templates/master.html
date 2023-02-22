@@ -1,10 +1,14 @@
+{% load static %}
 <!DOCTYPE html>
 <html>
 <head>
   <title>{% block title %}{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'main.css' %}">
 </head>
 <body>
-
+<header>
+  <h1>PREPARE YOUR SCAN HERE</h1>
+</header>
 {% block content %}
 {% endblock %}
 

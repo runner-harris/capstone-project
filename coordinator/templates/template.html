@@ -5,25 +5,39 @@
 {% endblock %}
 
 
+
 {% block content %}
 
-  <form action='.' method="POST">
+  <form action='.' method="POST" id="alligned">
     {% csrf_token %}
+
     <label>Scan Name:</label>
     <input type="text" name="scan_name" placeholder="Scan Name"/>
 
     <div style="margin-top:10px;">
     <label>Description:</label>
-    <div style="margin-top: 10px; margin-left: 80px;">
-    <textarea name="description" placeholder="Description"></textarea>
+    <input type="text" name="description" placeholder="Description">
     </div>
-    </div>
+
     <div style="margin-top:10px;">
     <label>Target:</label>
     <input type="text" name="target" placeholder="Target Range"/>
     </div>
+
+    
+    <div style="margin-top:10px;">
+      <label>Schedule:</label>
+      <select name="schedule">
+        <option value="one_time_scan" selected>One Time Scan</option>
+        <option value="monthly">Monthly</option>
+        <option value="quarterly">Quarterly</option>
+        <option value="yearly">Yearly</option>
+      </select>
+    </div>
+
     <div style="margin-top:30px; margin-left: 170px;">
     <button type="submit">Start Scan</button>
     </div>
+
   </form>
 {% endblock %}

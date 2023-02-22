@@ -6,6 +6,6 @@ from .models import Scan
 
 # the line of code below makes the scan display show all of the attributes on the screen (aka more readable)
 class ScanAdmin(admin.ModelAdmin):
-    list_display = ("scanName", "description", "target",)
+    list_display = ("scanName", "description", "target", "schedule", "date",)
 
 admin.site.register(Scan, ScanAdmin)
