@@ -4,10 +4,15 @@ from django.template import loader
 from .models import User
 import datetime
 
+#import the TenableIO class
+from tenable.io import TenableIO
+
 # import the Scan object model that is created in the models file
 from .models import Scan
 
-# commented out code was just for testing/playing aroun puposes
+# instantiate tenable object
+tio = TenableIO()
+
 # users and details are functions I made for practicing django. 
 def users(request):
     myusers = User.objects.all().values()
@@ -36,13 +41,22 @@ def main(request):
 # we will change this to a new name once we have it working how we want
 # right now it creates a Scan object and stores that in a database
 def testing(request):
-    template = loader.get_template('template.html')
-    scanName = request.POST.get('scan_name')
-    description = request.POST.get('description')
-    target = request.POST.get('target')
-    schedule = request.POST.get('schedule')
-    date = datetime.date.today()
-    
-    Scan.objects.create(scanName=scanName, description=description, target=target, schedule=schedule, date=date)
     context = {}
+    template = loader.get_template('template.html')
+    if request.method == "POST":
+        scanName = request.POST.get('scan_name')
+        description = request.POST.get('description')
+        target = request.POST.get('target')
+        schedule = request.POST.get('schedule')
+        date = datetime.date.today()
+        Scan.objects.create(scanName=scanName, description=description, target=target, schedule=schedule, date=date)
+
+        # Provision a scan with variable names
+        scan = tio.scans.create(
+            name = scanName,
+            targets = [target]
+        )
+        tio.scans.launch(scan['id'])
+
+    
     return HttpResponse(template.render(context, request))

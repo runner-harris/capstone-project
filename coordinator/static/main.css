@@ -137,9 +137,10 @@ textarea {
     margin-top: .2em;
     margin-right: 1em;
     margin-bottom: .5em;
-    float: left;
-    
-    
+    float: left; 
+}
+label{
+    padding-top: 5px;
 }
 #aligned input {
     float: left;
