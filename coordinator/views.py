@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from django.template import loader
 from .models import User
-import datetime
+from datetime import datetime
 
 #import the TenableIO class
 from tenable.io import TenableIO
@@ -48,13 +48,23 @@ def testing(request):
         description = request.POST.get('description')
         target = request.POST.get('target')
         schedule = request.POST.get('schedule')
-        date = datetime.date.today()
+        date = datetime.now()
         Scan.objects.create(scanName=scanName, description=description, target=target, schedule=schedule, date=date)
 
+        # Grab the schedule for scan
+        frequency = tio.scans.create_scan_schedule(
+            enabled=True,
+            frequency=schedule,
+            interval=1,
+            weekdays=['MO'],
+            starttime=datetime.now()
+        )
         # Provision a scan with variable names
+        # Still need to add description and schedule
         scan = tio.scans.create(
             name = scanName,
-            targets = [target]
+            targets = [target],
+            schedule_scan = frequency
         )
         tio.scans.launch(scan['id'])
 
