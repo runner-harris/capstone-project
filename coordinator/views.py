@@ -4,14 +4,27 @@ from django.template import loader
 from .models import User
 from datetime import datetime
 
+# to work with jsons
+import json
+import sys
+import os
+
 #import the TenableIO class
 from tenable.io import TenableIO
 
 # import the Scan object model that is created in the models file
 from .models import Scan
 
+# load apikeys.json, located in coordinator folder (better way to do this?) 
+apipath = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'apikeys.json')
+#print(apipath)
+with open(apipath) as keys:
+    data = json.load(keys)
+# load apikeys from apikeys.json
+accesskey = data['Access']
+secretkey = data['Secret']
 # instantiate tenable object
-tio = TenableIO()
+tio = TenableIO(accesskey, secretkey)
 
 def main(request):
     context = {}

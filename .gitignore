@@ -1,0 +1,6 @@
+# ignore api keys
+apikeys.json
+# ignore python optimization stuff
+coordinator/__pycache__/
+capstone-project/__pychache__/
+__pycache__/
