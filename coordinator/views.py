@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from django.template import loader
 from .models import User
-from datetime import datetime
+from datetime import time, datetime # hopefully won't cause error
 
 # to work with jsons
 import json
@@ -13,7 +13,10 @@ import os
 from tenable.io import TenableIO
 
 # import the Scan object model that is created in the models file
-from .models import Scan
+from .models import Scanmport time
+
+# import Celery class
+# from celery-3 import Celery
 
 # load apikeys.json, located in coordinator folder (better way to do this?) 
 apipath = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'apikeys.json')
@@ -64,6 +67,18 @@ def main(request):
             schedule_scan = frequency
         )
         tio.scans.launch(scan['id'])
+        
+        status = 'pending'
+        while status[-2:] != 'ed':
+            time.sleep(60)
+            status = tio.scans.status(scan['id'])
+
+        # if status == 'canceled' error handler ??
+
+        # assuming status is 'completed':
+        # download nessus file
+        with open(id + '.nessus', 'wb') as reportobj:
+            results = tio.scans.export(scan[id],fobj=reportobj)
 
     
     return HttpResponse(template.render(context, request))
