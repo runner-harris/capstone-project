@@ -1,42 +1,40 @@
-from django.shortcuts import render
-from django.http import HttpResponse, JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-from rest_framework.parsers import JSONParser
 from .models import Scan
 from .serializers import ScanSerializer
-from django.template import loader
-from .models import User
 from datetime import datetime
 from rest_framework import generics
+from .models import Scan
 
-
-# to work with jsons
 import json
-import sys
 import os
 
-#import the TenableIO class
 from tenable.io import TenableIO
-
-# import the Scan object model that is created in the models file
-from .models import Scan
 
 # load apikeys.json, located in coordinator folder (better way to do this?) 
 apipath = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'apikeys.json')
-#print(apipath)
+
 with open(apipath) as keys:
     data = json.load(keys)
+
 # load apikeys from apikeys.json
 accesskey = data['Access']
 secretkey = data['Secret']
+
 # instantiate tenable object
 tio = TenableIO(accesskey, secretkey)
 
-class ScanList(generics.ListCreateAPIView):
+# create a view of the create scan form
+# this view shows input fields for all of our scan model instances
+# this class is passed to our URLS.py file in the coordinator app so that it displays on the screen when called
+# queryset is the Scan object from the data base -> we grab this information to be able to create and add more stuff to it
+# we then use the serializer_class to create serializable fields that let us add data to the database
+class ScanList(generics.CreateAPIView):
     queryset = Scan.objects.all()
     serializer_class = ScanSerializer
 
-
+# run_scan is a function that creates a scan and runs it
+# we pass 'self' as an argument to get the current instances of the class
+# request as an argument so we can request data from the server
+# serializer takes that data (that is in JSON format) and pulls what we need to so we can create a scan with it
     def run_scan(self, request):
         serializer = ScanSerializer(data=request.data)
         target = serializer.data['target']

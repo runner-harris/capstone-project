@@ -5,7 +5,7 @@ class User(models.Model):
     firstname = models.CharField(max_length=255)
     lastname = models.CharField(max_length=255)
 
-
+# a tuple of schedule options to be passed into the model class
 SCHEDULE_CHOICES = (
     ("Weekly", "Weekly"),
     ("Monthly", "Monthly"),
