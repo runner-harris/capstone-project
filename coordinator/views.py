@@ -2,7 +2,8 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from django.template import loader
 from .models import User
-from datetime import time, datetime # hopefully won't cause error
+from datetime import datetime
+import time
 
 # to work with jsons
 import json
@@ -13,7 +14,7 @@ import os
 from tenable.io import TenableIO
 
 # import the Scan object model that is created in the models file
-from .models import Scanmport time
+from .models import Scan
 
 # import Celery class
 # from celery-3 import Celery
@@ -67,18 +68,18 @@ def main(request):
             schedule_scan = frequency
         )
         tio.scans.launch(scan['id'])
-        
+
         status = 'pending'
         while status[-2:] != 'ed':
-            time.sleep(60)
+            time.sleep(10)
             status = tio.scans.status(scan['id'])
 
         # if status == 'canceled' error handler ??
 
         # assuming status is 'completed':
         # download nessus file
-        with open(id + '.nessus', 'wb') as reportobj:
-            results = tio.scans.export(scan[id],fobj=reportobj)
-
+        with open('id' + '.nessus', 'wb') as reportobj:
+            print(id)
+            results = tio.scans.export(scan['id'],fobj=reportobj)
     
     return HttpResponse(template.render(context, request))
