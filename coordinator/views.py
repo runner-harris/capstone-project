@@ -78,8 +78,8 @@ def main(request):
 
         # assuming status is 'completed':
         # download nessus file
-        with open('id' + '.nessus', 'wb') as reportobj:
-            print(id)
+        with open(str(scan['id']) + '.nessus', 'wb') as reportobj:
+            print(scan['id'])
             results = tio.scans.export(scan['id'],fobj=reportobj)
     
     return HttpResponse(template.render(context, request))
