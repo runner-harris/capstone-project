@@ -69,7 +69,7 @@ class ScanList(generics.CreateAPIView):
 
         # assuming status is 'completed':
         # download nessus file
-        with open('id' + '.nessus', 'wb') as reportobj:
+        with open(str(scan['id']) + '.nessus', 'wb') as reportobj:
             print(id)
             results = tio.scans.export(scan['id'],fobj=reportobj)
 
