@@ -1,8 +1,10 @@
 from .models import Scan
 from .serializers import ScanSerializer
 from datetime import datetime
+import time
 from rest_framework import generics
 from .models import Scan
+from rest_framework.response import Response
 
 import json
 import os
@@ -19,6 +21,7 @@ with open(apipath) as keys:
 accesskey = data['Access']
 secretkey = data['Secret']
 
+
 # instantiate tenable object
 tio = TenableIO(accesskey, secretkey)
 
@@ -27,19 +30,16 @@ tio = TenableIO(accesskey, secretkey)
 # this class is passed to our URLS.py file in the coordinator app so that it displays on the screen when called
 # queryset is the Scan object from the data base -> we grab this information to be able to create and add more stuff to it
 # we then use the serializer_class to create serializable fields that let us add data to the database
+
 class ScanList(generics.CreateAPIView):
     queryset = Scan.objects.all()
     serializer_class = ScanSerializer
 
-# run_scan is a function that creates a scan and runs it
-# we pass 'self' as an argument to get the current instances of the class
-# request as an argument so we can request data from the server
-# serializer takes that data (that is in JSON format) and pulls what we need to so we can create a scan with it
-    def run_scan(self, request):
-        serializer = ScanSerializer(data=request.data)
-        target = serializer.data['target']
-        target.split(", ")
-        schedule = serializer.data['schedule']
+    def post(self, request, *args, **kwargs):
+        scan_name = request.data['scanName']
+        targets = request.data['target'].split(", ")
+        schedule = request.data['schedule']
+
         if schedule == 'quarterly':
             schedule = 'monthly'
             interval = 3
@@ -54,50 +54,24 @@ class ScanList(generics.CreateAPIView):
             starttime=datetime.now()
         )
         scan = tio.scans.create(
-            name = serializer.data['scanName'],
-            targets = target,
+            name = scan_name,
+            targets = targets,
             schedule_scan = frequency
         )
         tio.scans.launch(scan['id'])
 
-# def main(request):
-#     context = {}
-#     template = loader.get_template('template.html')
-#     if request.method == "POST":
-#         scanName = request.POST.get('scan_name')
-#         description = request.POST.get('description')
-#         target = request.POST.get('target')
-#         target = target.split(", ")
-#         schedule = request.POST.get('schedule')
-#         date = datetime.now()
-#         Scan.objects.create(scanName=scanName, description=description, target=target, schedule=schedule, date=date)
+        status = 'pending'
+        while status[-2:] != 'ed':
+            time.sleep(10)
+            status = tio.scans.status(scan['id'])
 
-#         # logic for a quarterly scan, i.e. the only one we need to set an interval for
-#         if schedule == 'quarterly':
-#             # monthly is the value that tenable API accepts, so we change it back to monthly after grabbing from POST
-#             schedule = 'monthly'
-#             # set interval to 3 because 12 / 3 = 4 (aka quarterly)
-#             interval = 3
-#         else:
-#             # otherwise we set the interval to 1 so a scan will run as normal
-#             interval = 1
+        # if status == 'canceled' error handler ??
 
-#         # Grab the schedule for scan
-#         frequency = tio.scans.create_scan_schedule(
-#             enabled=True,
-#             frequency=schedule,
-#             interval= interval,
-#             weekdays=['MO'],
-#             starttime=datetime.now()
-#         )
-#         # Provision a scan with variable names
-#         # Still need to add description
-#         scan = tio.scans.create(
-#             name = scanName,
-#             targets = target,
-#             schedule_scan = frequency
-#         )
-#         tio.scans.launch(scan['id'])
+        # assuming status is 'completed':
+        # download nessus file
+        with open('id' + '.nessus', 'wb') as reportobj:
+            print(id)
+            results = tio.scans.export(scan['id'],fobj=reportobj)
 
-    
-#     return HttpResponse(template.render(context, request))
+        return Response({'message': 'Scan created and run successfully'})
+
