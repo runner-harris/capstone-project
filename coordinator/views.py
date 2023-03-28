@@ -17,6 +17,8 @@ import os
 
 from tenable.io import TenableIO
 
+import asyncio
+
 # load apikeys.json, located in coordinator folder (better way to do this?) 
 apipath = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'apikeys.json')
 
@@ -40,6 +42,21 @@ tio = TenableIO(accesskey, secretkey)
 class ScanList(generics.CreateAPIView):
     queryset = Scan.objects.all()
     serializer_class = ScanSerializer
+
+    async def download(self, scanid, tio):
+        status = 'pending'
+        while status[-2:] != 'ed':
+            time.sleep(10)
+            status = tio.scans.status(scanid)
+            
+
+        # if status == 'canceled' error handler ??
+
+        # assuming status is 'completed':
+        # download nessus file
+        with open(str(scanid) + '.nessus', 'wb') as reportobj:
+            results = tio.scans.export(scanid,fobj=reportobj)
+        return
 
     def post(self, request, *args, **kwargs):
         scan_name = request.data['scanName']
@@ -66,19 +83,12 @@ class ScanList(generics.CreateAPIView):
         )
         tio.scans.launch(scan['id'])
 
-        status = 'pending'
-        while status[-2:] != 'ed':
-            time.sleep(10)
-            status = tio.scans.status(scan['id'])
+        #print("above")
+        #comptest()
+        #print("below")
 
-        # if status == 'canceled' error handler ??
-
-        # assuming status is 'completed':
-        # download nessus file
-        with open(str(scan['id']) + '.nessus', 'wb') as reportobj:
-            print(id)
-            results = tio.scans.export(scan['id'],fobj=reportobj)
-
+        asyncio.run(self.download(scan['id'], tio))
+        
 
         # dradis_url = 'https://cofc-dradis.soteria.io/'
         # dradis_token = '9bSuGEzizcoEsGezYCyX'
