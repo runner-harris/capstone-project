@@ -1,70 +1,67 @@
-from django.shortcuts import render
-from django.http import HttpResponse
-from django.template import loader
-from .models import User
+from .models import Scan
+from .serializers import ScanSerializer
 from datetime import datetime
 import time
+from rest_framework import generics
+from .models import Scan
+from rest_framework.response import Response
+import requests
+from .dradis import Dradis
+api_token = '9bSuGEzizcoEsGezYCyX'
+url = 'https://cofc-dradis.soteria.io/'
+dradis_api = Dradis(api_token, url)
+projects = dradis_api.get_all_projects()
 
-# to work with jsons
 import json
-import sys
 import os
 
-#import the TenableIO class
 from tenable.io import TenableIO
-
-# import the Scan object model that is created in the models file
-from .models import Scan
-
-# import Celery class
-# from celery-3 import Celery
 
 # load apikeys.json, located in coordinator folder (better way to do this?) 
 apipath = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'apikeys.json')
-#print(apipath)
+
 with open(apipath) as keys:
     data = json.load(keys)
+
 # load apikeys from apikeys.json
 accesskey = data['Access']
 secretkey = data['Secret']
+
+
 # instantiate tenable object
 tio = TenableIO(accesskey, secretkey)
 
-def main(request):
-    context = {}
-    template = loader.get_template('template.html')
-    if request.method == "POST":
-        scanName = request.POST.get('scan_name')
-        description = request.POST.get('description')
-        target = request.POST.get('target')
-        target = target.split(", ")
-        schedule = request.POST.get('schedule')
-        date = datetime.now()
-        Scan.objects.create(scanName=scanName, description=description, target=target, schedule=schedule, date=date)
+# create a view of the create scan form
+# this view shows input fields for all of our scan model instances
+# this class is passed to our URLS.py file in the coordinator app so that it displays on the screen when called
+# queryset is the Scan object from the data base -> we grab this information to be able to create and add more stuff to it
+# we then use the serializer_class to create serializable fields that let us add data to the database
 
-        # logic for a quarterly scan, i.e. the only one we need to set an interval for
+class ScanList(generics.CreateAPIView):
+    queryset = Scan.objects.all()
+    serializer_class = ScanSerializer
+
+    def post(self, request, *args, **kwargs):
+        scan_name = request.data['scanName']
+        targets = request.data['target'].split(", ")
+        schedule = request.data['schedule']
+
         if schedule == 'quarterly':
-            # monthly is the value that tenable API accepts, so we change it back to monthly after grabbing from POST
             schedule = 'monthly'
-            # set interval to 3 because 12 / 3 = 4 (aka quarterly)
             interval = 3
         else:
-            # otherwise we set the interval to 1 so a scan will run as normal
             interval = 1
 
-        # Grab the schedule for scan
         frequency = tio.scans.create_scan_schedule(
             enabled=True,
             frequency=schedule,
-            interval= interval,
+            interval=interval,
             weekdays=['MO'],
             starttime=datetime.now()
         )
-        # Provision a scan with variable names
-        # Still need to add description
         scan = tio.scans.create(
-            name = scanName,
-            targets = target,
+            name = scan_name,
+            targets = targets,
             schedule_scan = frequency
         )
         tio.scans.launch(scan['id'])
@@ -79,7 +76,23 @@ def main(request):
         # assuming status is 'completed':
         # download nessus file
         with open(str(scan['id']) + '.nessus', 'wb') as reportobj:
-            print(scan['id'])
+            print(id)
             results = tio.scans.export(scan['id'],fobj=reportobj)
-    
-    return HttpResponse(template.render(context, request))
+
+
+        # dradis_url = 'https://cofc-dradis.soteria.io/'
+        # dradis_token = '9bSuGEzizcoEsGezYCyX'
+        # dradis_project_id = '2'
+        # dradis_upload_url = f'{dradis_url}/api/v0/projects/{dradis_project_id}/uploads'
+        # headers = {'Authorization': f'Token {dradis_token}'}
+        # files = {'file': ('scan_results.nessus', results, 'application/octet-stream')}
+        # response = requests.post(dradis_upload_url, headers=headers, files=files)
+        # upload_id = response.json()['id']
+
+        # dradis_library_id = '488'
+        # dradis_run_url = f'{dradis_url}/api/v0/projects/{dradis_project_id}/issues/{dradis_library_id}/run'
+        # data = {'upload_id': upload_id}
+        # response = requests.post(dradis_run_url, headers=headers, data=data)
+
+        return Response({'message': 'Scan created and run successfully'})
+
