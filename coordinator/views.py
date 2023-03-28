@@ -5,6 +5,12 @@ import time
 from rest_framework import generics
 from .models import Scan
 from rest_framework.response import Response
+import requests
+from dradis import Dradis
+api_token = '9bSuGEzizcoEsGezYCyX'
+url = 'https://cofc-dradis.soteria.io/'
+dradis_api = Dradis(api_token, url)
+projects = dradis_api.get_all_projects()
 
 import json
 import os
@@ -72,6 +78,21 @@ class ScanList(generics.CreateAPIView):
         with open(str(scan['id']) + '.nessus', 'wb') as reportobj:
             print(id)
             results = tio.scans.export(scan['id'],fobj=reportobj)
+
+
+        # dradis_url = 'https://cofc-dradis.soteria.io/'
+        # dradis_token = '9bSuGEzizcoEsGezYCyX'
+        # dradis_project_id = '2'
+        # dradis_upload_url = f'{dradis_url}/api/v0/projects/{dradis_project_id}/uploads'
+        # headers = {'Authorization': f'Token {dradis_token}'}
+        # files = {'file': ('scan_results.nessus', results, 'application/octet-stream')}
+        # response = requests.post(dradis_upload_url, headers=headers, files=files)
+        # upload_id = response.json()['id']
+
+        # dradis_library_id = '488'
+        # dradis_run_url = f'{dradis_url}/api/v0/projects/{dradis_project_id}/issues/{dradis_library_id}/run'
+        # data = {'upload_id': upload_id}
+        # response = requests.post(dradis_run_url, headers=headers, data=data)
 
         return Response({'message': 'Scan created and run successfully'})
 
