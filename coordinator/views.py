@@ -6,7 +6,7 @@ from rest_framework import generics
 from .models import Scan
 from rest_framework.response import Response
 import requests
-from dradis import Dradis
+from .dradis import Dradis
 api_token = '9bSuGEzizcoEsGezYCyX'
 url = 'https://cofc-dradis.soteria.io/'
 dradis_api = Dradis(api_token, url)
