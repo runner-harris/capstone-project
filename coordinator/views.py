@@ -79,6 +79,7 @@ class ScanList(generics.CreateAPIView):
             print(id)
             results = tio.scans.export(scan['id'],fobj=reportobj)
 
+        ## hey
 
         # dradis_url = 'https://cofc-dradis.soteria.io/'
         # dradis_token = '9bSuGEzizcoEsGezYCyX'
