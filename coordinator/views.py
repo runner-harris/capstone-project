@@ -8,7 +8,7 @@ from rest_framework.response import Response
 import requests
 from .dradis import Dradis
 api_token = '9bSuGEzizcoEsGezYCyX'
-url = 'https://cofc-dradis.soteria.io/'
+url = 'https://cofc-dradis.soteria.io'
 dradis_api = Dradis(api_token, url)
 projects = dradis_api.get_all_projects()
 
@@ -66,21 +66,27 @@ class ScanList(generics.CreateAPIView):
         )
         tio.scans.launch(scan['id'])
 
-        status = 'pending'
-        while status[-2:] != 'ed':
-            time.sleep(10)
-            status = tio.scans.status(scan['id'])
+        # status = 'pending'
+        # while status[-2:] != 'ed':
+        #     time.sleep(10)
+        #     status = tio.scans.status(scan['id'])
 
         # if status == 'canceled' error handler ??
 
         # assuming status is 'completed':
         # download nessus file
-        with open(str(scan['id']) + '.nessus', 'wb') as reportobj:
-            print(id)
-            results = tio.scans.export(scan['id'],fobj=reportobj)
+        # with open(str(scan['id']) + '.nessus', 'wb') as reportobj:
+        #     print(id)
+        #     results = tio.scans.export(scan['id'],fobj=reportobj)
 
 
-        # dradis_url = 'https://cofc-dradis.soteria.io/'
+        # TODO 
+        dradis_api.create_project(scan_name, 42, 0, [], 'Vulnerability Scan Project Template v1')
+        return Response({'message': 'Scan created and run successfully'})
+    
+
+
+    # dradis_url = 'https://cofc-dradis.soteria.io/'
         # dradis_token = '9bSuGEzizcoEsGezYCyX'
         # dradis_project_id = '2'
         # dradis_upload_url = f'{dradis_url}/api/v0/projects/{dradis_project_id}/uploads'
@@ -93,6 +99,4 @@ class ScanList(generics.CreateAPIView):
         # dradis_run_url = f'{dradis_url}/api/v0/projects/{dradis_project_id}/issues/{dradis_library_id}/run'
         # data = {'upload_id': upload_id}
         # response = requests.post(dradis_run_url, headers=headers, data=data)
-
-        return Response({'message': 'Scan created and run successfully'})
 
