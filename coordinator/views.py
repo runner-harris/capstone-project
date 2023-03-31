@@ -46,7 +46,7 @@ class ScanList(generics.CreateAPIView):
     async def download(self, scanid, tio):
         status = 'pending'
         while status[-2:] != 'ed':
-            time.sleep(10)
+            await asyncio.sleep(10)
             status = tio.scans.status(scanid)
             
 
