@@ -72,7 +72,6 @@ class ScanList(generics.CreateAPIView):
         #download_scan(scan['id'],accesskey,secretkey)
         async_task(download_scan,scan['id'],accesskey,secretkey)
 
-        return Response({'message': 'Scan created and run successfully'})
 
         # assuming status is 'completed':
         # download nessus file
