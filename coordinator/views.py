@@ -4,6 +4,7 @@ from datetime import datetime
 import time
 from rest_framework import generics
 from .models import Scan
+from .tasks import download_scan
 from rest_framework.response import Response
 import requests
 from .dradis import Dradis
@@ -11,6 +12,8 @@ api_token = '9bSuGEzizcoEsGezYCyX'
 url = 'https://cofc-dradis.soteria.io/'
 dradis_api = Dradis(api_token, url)
 projects = dradis_api.get_all_projects()
+
+from django_q.tasks import async_task
 
 import json
 import os
@@ -66,18 +69,12 @@ class ScanList(generics.CreateAPIView):
         )
         tio.scans.launch(scan['id'])
 
-        status = 'pending'
-        while status[-2:] != 'ed':
-            time.sleep(10)
-            status = tio.scans.status(scan['id'])
+        #download_scan(scan['id'],accesskey,secretkey)
+        async_task(download_scan,scan['id'],accesskey,secretkey)
 
-        # if status == 'canceled' error handler ??
+        return Response({'message': 'Scan created and run successfully'})
 
-        # assuming status is 'completed':
-        # download nessus file
-        with open(str(scan['id']) + '.nessus', 'wb') as reportobj:
-            print(id)
-            results = tio.scans.export(scan['id'],fobj=reportobj)
+    
 
         ## hey
 
@@ -95,5 +92,5 @@ class ScanList(generics.CreateAPIView):
         # data = {'upload_id': upload_id}
         # response = requests.post(dradis_run_url, headers=headers, data=data)
 
-        return Response({'message': 'Scan created and run successfully'})
+        
 
