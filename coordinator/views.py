@@ -18,6 +18,11 @@ import os
 from tenable.io import TenableIO
 
 import asyncio
+# some more imports for email stuff:
+import aiosmtplib
+from django.core.mail import EmailMessage
+from django.conf import settings
+
 
 # load apikeys.json, located in coordinator folder (better way to do this?) 
 apipath = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'apikeys.json')
@@ -58,10 +63,34 @@ class ScanList(generics.CreateAPIView):
             results = tio.scans.export(scanid,fobj=reportobj)
         return
 
+
+    # Define asynchronous function that sends the email. 
+    # It will take an instance of the 'EmailMessage' class as an arg 
+    # and use 'aiosmtplin' library to send email asynchronously.
+    # this function could probably be written outside of views.py
+    async def send_email_async(email_message):
+        # Create an instance of the aiosmtplib.SMTP class
+        smtp_client = aiosmtplib.SMTP(hostname=settings.EMAIL_HOST, port=settings.EMAIL_PORT)
+
+        # Connect to the SMTP server
+        await smtp_client.connect()
+
+        # Login to the SMTP server if authentication is required
+        if settings.EMAIL_HOST_USER and settings.EMAIL_HOST_PASSWORD:
+            await smtp_client.login(settings.EMAIL_HOST_USER, settings.EMAIL_HOST_PASSWORD)
+
+        # Send the email
+        await smtp_client.send_message(email_message)
+
+        # Disconnect from the SMTP server
+        await smtp_client.quit()
+
+
     def post(self, request, *args, **kwargs):
         scan_name = request.data['scanName']
         targets = request.data['target'].split(", ")
         schedule = request.data['schedule']
+        user_email = request.data['userEmail'].split(", ")
 
         if schedule == 'quarterly':
             schedule = 'monthly'
@@ -84,7 +113,7 @@ class ScanList(generics.CreateAPIView):
         tio.scans.launch(scan['id'])
 
         #print("above")
-        
+
         #comptest()
         #print("below")
 
@@ -105,6 +134,26 @@ class ScanList(generics.CreateAPIView):
         # dradis_run_url = f'{dradis_url}/api/v0/projects/{dradis_project_id}/issues/{dradis_library_id}/run'
         # data = {'upload_id': upload_id}
         # response = requests.post(dradis_run_url, headers=headers, data=data)
+
+
+
+
+        # Prepare email message to be sent:
+        target = request.data['target'] # I'm getting the target data again here for readability reasons, as I intend to include the targets in the email
+        email_message = f'Scan report for target {target} has finished downloading.' # not REALLY necessary, just thought it would be nice to see what the target is so you can tell what report it's talking about
+        email = EmailMessage(
+            # 'Subject here', 'Here is the message', 'from@example.com', ['to@example.com'], reply_to=['another@example.com'], headers={'Message-ID': 'foo'}, # example one from online, i'm modifying this for our own but leaving this in case i mess it up/for reference.
+            'Report Downloaded', # subject
+            email_message, # email body
+            '2023socapstone@gmail.com', # sender's email, I created a throwaway email for this
+            [user_email], # recipient's address(es)
+            # may wanna figure out the headers part, helps the email from being recieved as spam. But its something else to figure out and apparently it isn't necessary
+        )
+        # Send email: 
+        asyncio.run(send_email_async(email)) # this should wait to send till after 'download()' is done
+
+
+
 
         return Response({'message': 'Scan created and run successfully'})
 

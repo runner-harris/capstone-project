@@ -19,6 +19,7 @@ class Scan(models.Model):
     target = models.CharField(max_length=255, null=True)
     schedule = models.CharField(max_length=255, choices = SCHEDULE_CHOICES, default='Weekly')
     date = models.DateField(auto_now_add=True, null=True)
+    userEmail = models.EmailField(max_length=255, null=True)
     # the below function makes the scan object in the admin page more user friendly
     def __str__(self):
         return f"{self.scanName}"
