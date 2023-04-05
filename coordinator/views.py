@@ -4,13 +4,16 @@ from datetime import datetime
 import time
 from rest_framework import generics
 from .models import Scan
+from .tasks import download_scan
 from rest_framework.response import Response
 import requests
 from .dradis import Dradis
 api_token = '9bSuGEzizcoEsGezYCyX'
-url = 'https://cofc-dradis.soteria.io/'
+url = 'https://cofc-dradis.soteria.io'
 dradis_api = Dradis(api_token, url)
 projects = dradis_api.get_all_projects()
+
+from django_q.tasks import async_task
 
 import json
 import os
@@ -112,16 +115,24 @@ class ScanList(generics.CreateAPIView):
         )
         tio.scans.launch(scan['id'])
 
-        #print("above")
+        #download_scan(scan['id'],accesskey,secretkey)
+        async_task(download_scan,scan['id'],accesskey,secretkey)
 
-        #comptest()
-        #print("below")
 
-        asyncio.run(self.download(scan['id'], tio))
-        
-        ## hey
+        # assuming status is 'completed':
+        # download nessus file
+        # with open(str(scan['id']) + '.nessus', 'wb') as reportobj:
+        #     print(id)
+        #     results = tio.scans.export(scan['id'],fobj=reportobj)
 
-        # dradis_url = 'https://cofc-dradis.soteria.io/'
+
+        # TODO 
+        dradis_api.create_project(scan_name, 42, 0, [], 'Vulnerability Scan Project Template v1')
+        return Response({'message': 'Scan created and run successfully'})
+    
+
+
+    # dradis_url = 'https://cofc-dradis.soteria.io/'
         # dradis_token = '9bSuGEzizcoEsGezYCyX'
         # dradis_project_id = '2'
         # dradis_upload_url = f'{dradis_url}/api/v0/projects/{dradis_project_id}/uploads'
@@ -155,5 +166,23 @@ class ScanList(generics.CreateAPIView):
 
 
 
-        return Response({'message': 'Scan created and run successfully'})
+
+
+
+        # Prepare email message to be sent:
+        target = request.data['target'] # I'm getting the target data again here for readability reasons, as I intend to include the targets in the email
+        email_message = f'Scan report for target {target} has finished downloading.' # not REALLY necessary, just thought it would be nice to see what the target is so you can tell what report it's talking about
+        email = EmailMessage(
+            # 'Subject here', 'Here is the message', 'from@example.com', ['to@example.com'], reply_to=['another@example.com'], headers={'Message-ID': 'foo'}, # example one from online, i'm modifying this for our own but leaving this in case i mess it up/for reference.
+            'Report Downloaded', # subject
+            email_message, # email body
+            '2023socapstone@gmail.com', # sender's email, I created a throwaway email for this
+            [user_email], # recipient's address(es)
+            # may wanna figure out the headers part, helps the email from being recieved as spam. But its something else to figure out and apparently it isn't necessary
+        )
+        # Send email: 
+        asyncio.run(send_email_async(email)) # this should wait to send till after 'download()' is done
+
+
+
 
