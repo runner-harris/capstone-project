@@ -18,3 +18,20 @@ def download_scan(scanid, accesskey, secretkey):
         with open(str(scanid) + '.nessus', 'wb') as reportobj:
             print(id)
             results = tio.scans.export(scanid,fobj=reportobj)
+
+def send_email_async(email_message):
+    # Create an instance of the aiosmtplib.SMTP class
+    #smtp_client = aiosmtplib.SMTP(hostname=settings.EMAIL_HOST, port=settings.EMAIL_PORT)
+
+    # Connect to the SMTP server
+    #await smtp_client.connect()
+
+    # Login to the SMTP server if authentication is required
+    #if settings.EMAIL_HOST_USER and settings.EMAIL_HOST_PASSWORD:
+    #    await smtp_client.login(settings.EMAIL_HOST_USER, settings.EMAIL_HOST_PASSWORD)
+
+    # Send the email
+    #await smtp_client.send_message(email_message)
+
+    # Disconnect from the SMTP server
+    #await smtp_client.quit()
