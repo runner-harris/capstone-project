@@ -5,3 +5,4 @@ coordinator/__pycache__/
 capstone-project/__pychache__/
 __pycache__/
 *.nessus
+.env
