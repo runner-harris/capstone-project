@@ -14,6 +14,7 @@ import json
 import os
 from django_q.tasks import async_task
 from tenable.io import TenableIO
+from django.core.mail import EmailMessage
 
 # load apikeys from apikeys.json
 accesskey = os.getenv('TENABLE_ACCESS_KEY')
@@ -35,7 +36,7 @@ class ScanList(generics.CreateAPIView):
         scan_name = request.data['scanName']
         targets = request.data['target'].split(", ")
         schedule = request.data['schedule']
-        email = request.data['email']
+        user_email = request.data['email']
 
         if schedule == 'quarterly':
             schedule = 'monthly'
@@ -70,29 +71,29 @@ class ScanList(generics.CreateAPIView):
 
         # TODO 
         dradis_api.create_project(scan_name, 42, 0, [], 'Vulnerability Scan Project Template v1')
-        return Response({'message': 'Scan created and run successfully'})
+        # return Response({'message': 'Scan created and run successfully'})
     
 
 
 
         # Prepare email message to be sent:
         target = request.data['target'] # I'm getting the target data again here for readability reasons, as I intend to include the targets in the email
-        email_message = f'Scan report for target {target} has finished downloading.' # not REALLY necessary, just thought it would be nice to see what the target is so you can tell what report it's talking about
-        email = EmailMessage(
+        email_message = f'Scan report for target {target} has downloaded.' # not REALLY necessary, just thought it would be nice to see what the target is so you can tell what report it's talking about
+        email = EmailMessage( # the email to be sent
             # 'Subject here', 'Here is the message', 'from@example.com', ['to@example.com'], reply_to=['another@example.com'], headers={'Message-ID': 'foo'}, # example one from online, i'm modifying this for our own but leaving this in case i mess it up/for reference.
             'Report Downloaded', # subject
             email_message, # email body
-            '2023socapstone@gmail.com', # sender's email, I created a throwaway email for this
+            '2023socapstone@gmail.com', # sender's email, created a throwaway email for this
             [user_email], # recipient's address(es)
-            # may wanna figure out the headers part, helps the email from being recieved as spam. But its something else to figure out and apparently it isn't necessary
         )
 
         # send_email_async moved to tasks.py
         # Send email: 
         # call async_task function. first arg is string name of function, following args are same as your function
-        async_task(send_email_async, email) # this should wait to send till after 'download()' is done
+        # async_task(send_email_async, email) # this should wait to send till after 'download()' is done OLD VERSION
+        async_task(send_email(email)) # this should wait to send till after 'download()' is done
         
-        # return Response({'message': 'Scan created and run successfully'})
+        return Response({'message': 'Scan created and run successfully'})
 
 
 

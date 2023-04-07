@@ -22,7 +22,7 @@ def download_scan(scanid, accesskey, secretkey):
             results = tio.scans.export(scanid,fobj=reportobj)
 
 
-def send_email_async(email_message):
+#def send_email_async(email_message):
     # Create an instance of the aiosmtplib.SMTP class
     #smtp_client = aiosmtplib.SMTP(hostname=settings.EMAIL_HOST, port=settings.EMAIL_PORT)
 
@@ -45,4 +45,4 @@ def send_email_async(email_message):
     # redoing, this function gets called later so just smack the sync code to send an email here, probably don't even need to worry about redis
     #set up variables
 
-    send_mail(subject, body, sender_email, user_email)
+    #send_mail('subject', 'body', sender_email, user_email)
