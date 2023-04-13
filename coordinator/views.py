@@ -14,8 +14,8 @@ import json
 import os
 from django_q.tasks import async_task
 from tenable.io import TenableIO
-from django.core.mail import EmailMessage
 from django.core.mail import send_mail
+
 
 # load apikeys from apikeys.json
 accesskey = os.getenv('TENABLE_ACCESS_KEY')
@@ -80,22 +80,16 @@ class ScanList(generics.CreateAPIView):
         # Prepare email message to be sent:
         target = request.data['target'] # I'm getting the target data again here for readability reasons, as I intend to include the targets in the email
         email_message = f'Scan report for target {target} has downloaded.' # not REALLY necessary, just thought it would be nice to see what the target is so you can tell what report it's talking about
-        #email = EmailMessage( # the email to be sent
-            # 'Subject here', 'Here is the message', 'from@example.com', ['to@example.com'], reply_to=['another@example.com'], headers={'Message-ID': 'foo'}, # example one from online, i'm modifying this for our own but leaving this in case i mess it up/for reference.
-        #    'Report Downloaded', # subject
-        #    email_message, # email body
-        #    '2023socapstone@gmail.com', # sender's email, created a throwaway email for this
-        #    [user_email], # recipient's address(es)
-        #)
-
-
-
-        # send_email_async moved to tasks.py
-        # Send email: 
-        # call async_task function. first arg is string name of function, following args are same as your function
-        # async_task(send_email_async, email) # this should wait to send till after 'download()' is done OLD VERSION
-        async_task(send_mail('Report Downloaded', email_message, '2023socapstone@gmail.com', [user_email])) # this should wait to send till after 'download()' is done
         
+        # adding in more variables so the email params aren't as hardcoded:
+        email_subject = 'Report Downloaded'
+        sender_email = '2023socapstone@gmail.com' # created a throwaway email for this. More things to set up the sender email were done in setting.py and online
+        
+
+        # Send email: 
+        async_task(send_mail(email_subject, email_message, sender_email, [user_email])) # this should wait to send till after 'download()' is done
+        
+
         return Response({'message': 'Scan created and run successfully'})
 
 

@@ -30,13 +30,12 @@ ALLOWED_HOSTS = ['*']
 # Email things:
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_HOST_USER = '2023socapstone@gmail.com'
-EMAIL_HOST_PASSWORD = 'rbfvmrwmioavrdxb'
+EMAIL_HOST_USER = '2023socapstone@gmail.com' # throwaway email created for this project. Can be changed if desired, but see comment for line below. Currently any changes to this email address must be changed here and in views.py
+EMAIL_HOST_PASSWORD = 'rbfvmrwmioavrdxb' # special steps were needed online for this since it's gmail. See this link for directions on generating new password if using a different email account: https://stackoverflow.com/a/72734404
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True 
 EMAIL_USE_SSL = False
  
-
 # Application definition
 
 INSTALLED_APPS = [
