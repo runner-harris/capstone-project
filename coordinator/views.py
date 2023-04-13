@@ -15,7 +15,7 @@ import os
 from django_q.tasks import async_task
 from tenable.io import TenableIO
 from django.core.mail import send_mail
-
+from django.conf import settings # to get a variable for email
 
 # load apikeys from apikeys.json
 accesskey = os.getenv('TENABLE_ACCESS_KEY')
@@ -79,12 +79,11 @@ class ScanList(generics.CreateAPIView):
 
         # Prepare email message to be sent:
         target = request.data['target'] # I'm getting the target data again here for readability reasons, as I intend to include the targets in the email
-        email_message = f'Scan report for target {target} has downloaded.' # not REALLY necessary, just thought it would be nice to see what the target is so you can tell what report it's talking about
+        email_message = f'Scan report for target {target} has finished downloading.' # not REALLY necessary, just thought it would be nice to see what the target is so you can tell what report it's talking about
         
         # adding in more variables so the email params aren't as hardcoded:
         email_subject = 'Report Downloaded'
-        sender_email = '2023socapstone@gmail.com' # created a throwaway email for this. More things to set up the sender email were done in setting.py and online
-        
+        sender_email = settings.EMAIL_HOST_USER # gets sender's email from settings.py
 
         # Send email: 
         async_task(send_mail(email_subject, email_message, sender_email, [user_email])) # this should wait to send till after 'download()' is done
