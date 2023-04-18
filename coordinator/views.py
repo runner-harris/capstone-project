@@ -65,13 +65,6 @@ class ScanList(generics.CreateAPIView):
 
         async_task(download_scan,scan['id'], accesskey, secretkey, api_token, scan_name)
 
-        # TODO 
-        dradis_api.create_project(scan_name, scan['id'], 0, [], 'Vulnerability Scan Project Template v1')
-        # return Response({'message': 'Scan created and run successfully'})
-    
-
-
-
         # Prepare email message to be sent:
         target = request.data['target'] # I'm getting the target data again here for readability reasons, as I intend to include the targets in the email
         email_message = f'Scan report for target {target} has finished downloading.' # not REALLY necessary, just thought it would be nice to see what the target is so you can tell what report it's talking about

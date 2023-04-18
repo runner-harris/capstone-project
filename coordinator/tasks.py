@@ -19,17 +19,15 @@ def download_scan(scanid, accesskey, secretkey, api_token, scan_name):
             time.sleep(10)
             status = tio.scans.status(scanid)
 
-        # if status == 'canceled' throw an exception?
+        # TODO if status == 'canceled' throw an exception?
 
-        # assuming status is 'completed':
-        # download nessus file
         with open(str(scanid) + '.nessus', 'wb') as reportobj:
             print(str(scanid))
             results = tio.scans.export(scanid,fobj=reportobj)
 
         # TODO UNSAFE, FOR TESTING ONLY. FIND A WAY AROUND THIS
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        
+        # better way to handle this?
         ssh.connect(os.getenv('DRADIS_HOSTNAME'),username=os.getenv('DRADIS_USER'),key_filename='./id_rsa')
         sftp = ssh.open_sftp()
 
@@ -48,25 +46,22 @@ def download_scan(scanid, accesskey, secretkey, api_token, scan_name):
         ## 1 is Soteria's word template, hope that's true on other machines too
 
         sftp.put(localpath, remotepath) # copy file to home directory of user in dradis instance
-        #with open('script.sh', 'w') as file:
-        #    file.write('''#!/bin/bash\nexport PROJECT_ID=$2\nexport RAILS_ENV=production\ncd /opt/dradispro/dradispro/current\nexport PATH=/opt/rbenv/shims:/opt/rbenv/bin:/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games\nbundle exec thor dradis:plugins:nessus:upload /opt/dradispro/dradispro/current/$1.nessus\nsleep 5\nPROJECT_ID=$2 RAILS_ENV=production bundle exec thor dradis:pro:plugins:word:export --output=/tmp/$2.docm --template=/opt/dradispro/dradispro/current/templates/reports/word/vulnerability_scan-Internalv0.19.docm''')
-
-        #sftp.put("./script.sh","/opt/dradispro/dradispro/current/script.sh")
 
         cmd1 = "export PROJECT_ID=" + str(dID) + " ; export RAILS_ENV=production ; cd /opt/dradispro/dradispro/current/ ; export PATH=/opt/rbenv/shims:/opt/rbenv/bin:/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games ; bundle exec thor dradis:plugins:nessus:upload " + "./" + str(scanid) + ".nessus"
-        print(cmd1)
+        #print(cmd1)
         stdin, stdout, stderr = ssh.exec_command(cmd1)
-        print(stdout.read())
-        print(stderr.read())
+        #print(stdout.read())
+        #print(stderr.read())
 
         time.sleep(15) # need a loop that checks status, will implement later  
         
         cmd2 = "export PROJECT_ID=" + str(dID) + " ; export RAILS_ENV=production ; cd /opt/dradispro/dradispro/current/ ; export PATH=/opt/rbenv/shims:/opt/rbenv/bin:/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games ; bundle exec thor dradis:pro:plugins:word:export --output=/tmp/" + str(dID) + ".docm --template=templates/reports/word/vulnerability_scan-Internalv0.19.docm"
-        print(cmd2)
+        #print(cmd2)
         stdin, stdout, stderr = ssh.exec_command(cmd2)
-        print(stdout.read())
-        print(stderr.read())
+        #print(stdout.read())
+        #print(stderr.read())
         sftp.get("/tmp/" + str(dID) + ".docm", "./" + str(dID) + ".docm") 
 
         sftp.close()
         ssh.close()
+        return
