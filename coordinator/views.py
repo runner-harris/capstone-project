@@ -14,6 +14,9 @@ projects = dradis_api.get_all_projects()
 
 ssh = paramiko.SSHClient()
 
+# instantiate paramiko object
+ssh = paramiko.SSHClient()
+
 class ScanList(generics.CreateAPIView):
     permission_classes = (IsAuthenticated,)
     queryset = Scan.objects.all()

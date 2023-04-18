@@ -52,13 +52,15 @@ def download_scan(scan_id, accesskey, secretkey, api_token, scan_name):
         print(stderr.read())
 
         time.sleep(15) # need a loop that checks status, will implement later  
-
         cmd2 = "export PROJECT_ID=" + str(dID) + " ; export RAILS_ENV=production ; cd /opt/dradispro/dradispro/current/ ; export PATH=/opt/rbenv/shims:/opt/rbenv/bin:/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games ; bundle exec thor dradis:pro:plugins:word:export --output=/tmp/" + str(dID) + ".docm --template=templates/reports/word/vulnerability_scan-Internalv0.19.docm"
         print(cmd2)
         stdin, stdout, stderr = ssh.exec_command(cmd2)
         print(stdout.read())
         print(stderr.read())
         sftp.get("/tmp/" + str(dID) + ".docm", "./" + str(dID) + ".docm") 
+
+        sftp.close()
+        ssh.close()
 
         sftp.close()
         ssh.close()
