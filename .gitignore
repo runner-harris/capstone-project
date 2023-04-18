@@ -6,3 +6,6 @@ capstone-project/__pychache__/
 __pycache__/
 *.nessus
 .env
+*.docm
+id_rsa
+id_rsa.pub
