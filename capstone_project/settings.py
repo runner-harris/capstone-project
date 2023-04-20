@@ -151,3 +151,6 @@ REST_FRAMEWORK = {
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ]
 }
+
+REDIS_HOST = 'redis'
+REDIS_PORT = 6379

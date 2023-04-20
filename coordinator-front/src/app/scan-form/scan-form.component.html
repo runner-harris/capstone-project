@@ -1,0 +1,38 @@
+<div class="form-container">
+<form (ngSubmit)="onSubmit()">
+  <div class="form-fields">
+    <mat-form-field appearance="fill">
+      <mat-label>Scan Name</mat-label>
+      <input matInput [(ngModel)]="scanName" name="scanName" required>
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+        <mat-label>Description</mat-label>
+        <input matInput [(ngModel)]="description" name="description" required>
+      </mat-form-field>
+  
+    <mat-form-field appearance="fill">
+      <mat-label>Target</mat-label>
+      <input matInput [(ngModel)]="target" name="target" required>
+    </mat-form-field>
+  
+    <mat-form-field appearance="fill">
+      <mat-label>Schedule</mat-label>
+      <mat-select [(ngModel)]="schedule" name="schedule" required>
+        <mat-option value="weekly">Weekly</mat-option>
+        <mat-option value="monthly">Monthly</mat-option>
+        <mat-option value="quarterly">Quarterly</mat-option>
+        <mat-option value="yearly">Yearly</mat-option>
+      </mat-select>
+    </mat-form-field>
+  
+    <mat-form-field appearance="fill">
+      <mat-label>Email</mat-label>
+      <input matInput [(ngModel)]="email" name="email" required>
+    </mat-form-field>
+  </div>
+    <button mat-raised-button color="primary" type="submit">Create Scan</button>
+  </form>
+  <div *ngIf="isLoading" class="spinner"></div>
+</div>
+  

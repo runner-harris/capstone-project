@@ -1,0 +1,39 @@
+version: '3.9'
+
+services:
+  backend:
+    build: .  
+    command: python ./manage.py runserver 0.0.0.0:8000
+    working_dir: /app/capstone_project
+    volumes:
+      - .:/app
+      - sqlite_data:/app/db
+    ports:
+      - "8000:8000"
+    environment:
+      - DEBUG=True
+    env_file:
+      - ./coordinator/.env  
+    depends_on:
+      - redis
+
+  django_q:
+    build: ./capstone_project
+    command: python manage.py qcluster
+    volumes:
+      - ./capstone_project:/app
+    depends_on:
+      - redis
+
+  frontend:
+    build: ./coordinator-front
+    ports:
+      - "80:80"
+
+  redis:
+    image: redis:6.2
+    ports:
+      - "6379:6379"
+
+volumes:
+  sqlite_data:
