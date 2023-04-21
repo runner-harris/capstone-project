@@ -4,7 +4,6 @@ services:
   backend:
     build: .  
     command: python ./manage.py runserver 0.0.0.0:8000
-    working_dir: /app/capstone_project
     volumes:
       - .:/app
       - sqlite_data:/app/db
@@ -21,7 +20,7 @@ services:
     build: ./capstone_project
     command: python manage.py qcluster
     volumes:
-      - ./capstone_project:/app
+      - ./:/app
     depends_on:
       - redis
 
