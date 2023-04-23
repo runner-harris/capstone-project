@@ -27,8 +27,17 @@ export class ScanFormComponent {
       email: this.email,
     };
     this.isLoading = true;
-
-    this.http.post('http://localhost:8000/scan/', scanData).subscribe(
+  
+    // Retrieve the access token from the localStorage
+    const accessToken = localStorage.getItem('access');
+  
+    // Include the access token in the Authorization header
+    const headers = {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${accessToken}`,
+    };
+  
+    this.http.post('http://localhost:8000/scan/', scanData, { headers }).subscribe(
       (response) => {
         this.isLoading = false;
         console.log(response);
