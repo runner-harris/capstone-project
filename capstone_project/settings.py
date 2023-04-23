@@ -15,7 +15,6 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
@@ -137,7 +136,7 @@ Q_CLUSTER = {
     'cpu_affinity': 1,
     'label': 'Django Q',
     'redis': {
-        'host': '127.0.0.1',
+        'host': 'redis_db',
         'port': 6379,
         'db': 0, }
 }
@@ -148,5 +147,4 @@ REST_FRAMEWORK = {
     ]
 }
 
-REDIS_HOST = 'redis'
-REDIS_PORT = 6379
+
