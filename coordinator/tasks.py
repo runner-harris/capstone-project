@@ -3,13 +3,13 @@ import time
 import paramiko
 import os
 from .dradis import Dradis
-from .api_clients import dradis_api
+from .api_clients import dradis_api, tio
+from django.conf import settings # to get a variable for email
+from django.core.mail import send_mail
 
-def download_scan(scan_id, accesskey, secretkey, api_token, scan_name):
-        tio = TenableIO(accesskey, secretkey)
+def download_scan(scan_id, scan_name, email):
+        #tio = TenableIO(accesskey, secretkey)
         ssh = paramiko.SSHClient()
-        #url = 'https://cofc-dradis.soteria.io'
-        #dradis_api = Dradis(api_token, url)
 
         status = 'pending'
         while status[-2:] != 'ed':
@@ -62,4 +62,17 @@ def download_scan(scan_id, accesskey, secretkey, api_token, scan_name):
 
         sftp.close()
         ssh.close()
+
+        # Prepare email message to be sent:
+        #target = request.data['target'] # I'm getting the target data again here for readability reasons, as I intend to include the targets in the email
+        email_message = f'Vulneability report for scan {scan_name} has finished downloading.' # not REALLY necessary, just thought it would be nice to see what the target is so you can tell what report it's talking about
+        
+        # adding in more variables so the email params aren't as hardcoded:
+        email_subject = 'Report Downloaded'
+        sender_email = settings.EMAIL_HOST_USER # gets sender's email from settings.py
+
+        # Send email: 
+        send_mail(email_subject, email_message, sender_email, [email]) # this should wait to send till after 'download()' is done
+
+
 

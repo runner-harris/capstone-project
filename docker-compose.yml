@@ -9,6 +9,7 @@ services:
       - sqlite_data:/app/db
     ports:
       - "8000:8000"
+      - "587:587"
     environment:
       - DEBUG=True
     env_file:
