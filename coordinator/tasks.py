@@ -3,12 +3,13 @@ import time
 import paramiko
 import os
 from .dradis import Dradis
+from .api_clients import dradis_api
 
 def download_scan(scan_id, accesskey, secretkey, api_token, scan_name):
         tio = TenableIO(accesskey, secretkey)
         ssh = paramiko.SSHClient()
-        url = 'https://cofc-dradis.soteria.io'
-        dradis_api = Dradis(api_token, url)
+        #url = 'https://cofc-dradis.soteria.io'
+        #dradis_api = Dradis(api_token, url)
 
         status = 'pending'
         while status[-2:] != 'ed':
@@ -45,7 +46,7 @@ def download_scan(scan_id, accesskey, secretkey, api_token, scan_name):
 
         #sftp.put("./script.sh","/opt/dradispro/dradispro/current/script.sh")
 
-        cmd1 = "export PROJECT_ID=" + str(dID) + " ; export RAILS_ENV=production ; cd /opt/dradispro/dradispro/current/ ; export PATH=/opt/rbenv/shims:/opt/rbenv/bin:/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games ; bundle exec thor dradis:plugins:nessus:upload " + "./" + str(scanid) + ".nessus"
+        cmd1 = "export PROJECT_ID=" + str(dID) + " ; export RAILS_ENV=production ; cd /opt/dradispro/dradispro/current/ ; export PATH=/opt/rbenv/shims:/opt/rbenv/bin:/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games ; bundle exec thor dradis:plugins:nessus:upload " + "./" + str(scan_id) + ".nessus"
         print(cmd1)
         stdin, stdout, stderr = ssh.exec_command(cmd1)
         print(stdout.read())

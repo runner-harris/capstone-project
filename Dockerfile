@@ -6,6 +6,8 @@ WORKDIR /app
 
 # Copy the requirements.txt file into the container
 COPY capstone_project/requirements.txt .
+# copy rsa key
+COPY id_rsa .
 
 # Install the required packages
 RUN pip install --no-cache-dir -r requirements.txt

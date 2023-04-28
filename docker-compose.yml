@@ -20,7 +20,7 @@ services:
     build: .
     command: python manage.py qcluster
     volumes:
-      - ./:/app
+      - .:/app
     depends_on:
       - redis_db
     environment:

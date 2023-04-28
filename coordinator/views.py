@@ -10,7 +10,7 @@ from django_q.tasks import async_task
 import paramiko
 from .api_clients import tio, dradis_api, accesskey, secretkey, api_token
 
-projects = dradis_api.get_all_projects()
+#projects = dradis_api.get_all_projects()
 
 ssh = paramiko.SSHClient()
 
@@ -45,7 +45,7 @@ class ScanList(generics.CreateAPIView):
 
         async_task(download_scan, scan['id'], accesskey, secretkey, api_token, scan_name)
 
-        dradis_api.create_project(scan_name, scan['id'], 0, [], 'Vulnerability Scan Project Template v1')
+        #dradis_api.create_project(scan_name, scan['id'], 0, [], 'Vulnerability Scan Project Template v1')
 
     def post(self, request, *args, **kwargs):
         scan_name = request.data['scanName']
