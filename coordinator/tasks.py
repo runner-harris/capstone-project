@@ -63,5 +63,3 @@ def download_scan(scan_id, accesskey, secretkey, api_token, scan_name):
         sftp.close()
         ssh.close()
 
-        sftp.close()
-        ssh.close()
